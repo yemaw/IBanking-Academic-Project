@@ -1,4 +1,7 @@
+<%@page import="java.sql.Timestamp"%>
+<%@page import="java.text.SimpleDateFormat"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <h3>My Information</h3>
 <table class="table">
 	<tr>
@@ -31,10 +34,12 @@
 	</tr>
 	<tr>
 		<td>Date of Birth</td>
-		<td>${customer.date_of_birth}</td>
+		<td><fmt:formatDate value="${customer.date_of_birth}" pattern="MM/d/yyyy" /></td>
 	</tr>
 	<tr>
 		<td>Date of Join</td>
-		<td>${customer.date_of_join}</td>
+		<td>
+			<fmt:formatDate value="${customer.date_of_join}" pattern="MM/d/yyyy" />
+		</td>
 	</tr>
 </table>

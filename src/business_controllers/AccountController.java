@@ -38,7 +38,7 @@ public class AccountController {
 	public AccountController() {
 	}
 
-	public Account getAccount(int account_id) {
+	public Account getAccount(int account_id) throws NotFoundException {
 
 		Account account = new Account();
 		Connection connection = DBConnectionHelper.getConnection();
@@ -51,6 +51,7 @@ public class AccountController {
 			return account;
 		} catch (NotFoundException e) {
 			e.printStackTrace();
+			throw new NotFoundException("Account do not found");
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -65,7 +66,7 @@ public class AccountController {
 		return null;
 	}
 
-	public Account getAccountDetails(int account_id) {
+	public Account getAccountDetails(int account_id) throws NotFoundException {
 
 		Account account = getAccount(account_id);
 

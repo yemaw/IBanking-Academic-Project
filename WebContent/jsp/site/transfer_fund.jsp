@@ -1,4 +1,5 @@
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <table class="table .table-condensed">
 	<thead>
@@ -10,7 +11,7 @@
 	</tr>
 	<tr>
 		<td>Balance</td>
-		<td>${account.amount}</td>
+		<td><fmt:formatNumber value="${account.amount}" type="currency"/></td>
 	</tr>
 	<tr>
 		<td>Account Type</td>
@@ -31,9 +32,10 @@
 		<table>
 			<tr>
 				<td style="width: 150px;"><label>Transfer To</label></td>
-				<td style="width: 250px;"><input name="account_id_to" autocomplete="off"
+				<td style="width: 250px;"><input id="account_id_to" name="account_id_to" autocomplete="off"
 					type="text" class="input-block-level" required="required"
-					placeholder="Bank Account ID"></td>
+					placeholder="Bank Account ID">
+					</td>
 			</tr>
 			<tr>
 				<td style="width: 150px;"><label>Amount to Transfer</label></td>

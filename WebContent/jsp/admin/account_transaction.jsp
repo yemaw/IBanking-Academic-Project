@@ -1,7 +1,7 @@
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <h4>Transaction History Showing for Account Id -
-	${account.account_id}</h4>
+	${account_id}</h4>
 <table class="table table-hover table table-striped">
 	<thead>
 		<tr>
@@ -11,7 +11,7 @@
 		</tr>
 	</thead>
 	<tbody>
-		<c:forEach items="${t_histories}" var="history">
+		<c:forEach items="${data}" var="history">
 			<tr>
 				<td><fmt:formatDate value="${history.transaction_time}" pattern="MM/d/yyyy - hh:mm" /></td>
 				<td><fmt:formatNumber value="${history.transaction_amount}" type="currency"/></td>

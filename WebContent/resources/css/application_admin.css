@@ -1,3 +1,4 @@
+body{background:#ecf0f1;}
 #header{margin:20px;}
 #body{margin-top:20px;min-height:450px;}
 #admin_menu{margin:30px 40px 0 40px;list-style-type:none;}
@@ -6,5 +7,4 @@
 #dashboard *{text-align:center;}
 #dashboard .row a{color:black;}
 #content{padding-top:20px;}
-#footer{margin-top:20px;height:20px;padding:20px;position:relative;}
 .list-username{font-size:13px;}

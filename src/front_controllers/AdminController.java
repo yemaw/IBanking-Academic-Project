@@ -43,6 +43,7 @@ import utils.ChangesStatus;
 import utils.Message;
 import utils.MessageQueue;
 import utils.PageEnvironment;
+import utils.TransactionHistoryOfAnAccount;
 
 @Controller
 public class AdminController{
@@ -112,6 +113,10 @@ public class AdminController{
 					model.addAttribute("data", data);
 					page.setPage_title("Customer Detials : " + data.getGivenname());
 					page.setViewFile("admin/customer_details.jsp");
+				} catch (NumberFormatException e){
+					message_queue.add(new Message("Customer ID is not valid.", "error"));
+					redirectAttributes.addFlashAttribute("message_queue", message_queue);
+					return "redirect:/admin/dashboard";
 				} catch (NotFoundException e) {
 					e.printStackTrace();
 					message_queue.add(new Message("Customer Not Found", "error"));
@@ -139,12 +144,28 @@ public class AdminController{
 				page.setViewFile("admin/account_edit.jsp");
 			}
 			if(uris.get("uri_3").equals("edit")){
-				int account_id = Integer.parseInt(uris.get("uri_4"));
-				Account account = accountController.getAccountDetails(account_id);
-				model.addAttribute("data", account);
 				
-				page.setPage_title("Edit Account");
-				page.setViewFile("admin/account_edit.jsp");
+				try{
+					int account_id = Integer.parseInt(uris.get("uri_4"));
+					Account account = accountController.getAccountDetails(account_id);
+					model.addAttribute("data", account);
+					
+					page.setPage_title("Edit Account");
+					page.setViewFile("admin/account_edit.jsp");
+				} catch (NumberFormatException e){
+					e.printStackTrace();
+					message_queue.add(new Message("Account ID is not valid.", "error"));
+					redirectAttributes.addFlashAttribute("message_queue", message_queue);
+					return "redirect:/admin/account/search";
+					
+				} catch (NotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					message_queue.add(new Message("Account Not Found", "error"));
+					redirectAttributes.addFlashAttribute("message_queue", message_queue);
+					return "redirect:/admin/account/search";
+				}
+				
 			}
 			//Account search page
 			if(uris.get("uri_3").equals("search")){
@@ -154,13 +175,29 @@ public class AdminController{
 			//Account search page
 			if(uris.get("uri_3").equals("details")){
 				int account_id = Integer.parseInt(uris.get("uri_4"));
-				Account data = accountController.getAccountDetails(account_id);
+				Account data;
+				try {
+					data = accountController.getAccountDetails(account_id);
+					model.addAttribute("data", data);
+					page.setPage_title("Account Details");
+					page.setViewFile("admin/account_details.jsp");
+				} catch (NotFoundException e) {
+					e.printStackTrace();
+					message_queue.add(new Message("Account Not Exit", "error"));
+					redirectAttributes.addFlashAttribute("message_queue", message_queue);
+					return "redirect:/admin/dashboard";
+				}
 				
-				System.out.println(data);
 				
-				model.addAttribute("data", data);
-				page.setPage_title("Account Details");
-				page.setViewFile("admin/account_details.jsp");
+			}
+			if(uris.get("uri_3").equals("transaction")){
+				int account_id = Integer.parseInt(uris.get("uri_4"));
+				TransactionController transactionController = new TransactionController();
+				ArrayList<TransactionHistoryOfAnAccount> t_histories = (ArrayList<TransactionHistoryOfAnAccount>) transactionController.getAllTransactionsOfAAccount(account_id);
+				model.addAttribute("data", t_histories);
+				model.addAttribute("account_id", account_id);
+				page.setPage_title("Transfer History");
+				page.setView_file("admin/account_transaction.jsp");
 			}
 		}
 		if(uris.get("uri_2").equals("bank_branch")){
@@ -220,8 +257,7 @@ public class AdminController{
 		if(to_do.equals("save_customer")){
 			CustomerController customerController = new CustomerController();
 			Customer customer = HttpHelper.sanatizeRequestedCustomerModel(request);
-			System.out.print(request.getParameter("customer_id"));
-			System.out.println(customer);
+			
 			ChangesStatus status = customerController.saveCustomer(customer);
 			message_queue.add(new Message(status.getMessage(),((status.getStatus()) ? "success" : "error")));
 			redirectAttributes.addFlashAttribute("message_queue", message_queue);
@@ -234,11 +270,20 @@ public class AdminController{
 			Account account = HttpHelper.sanatizeRequestedAccountModel(request);
 			ArrayList<MapAccountCustomer> mapAccountCustomer = HttpHelper.sanatizeRequestedMapAccountCustomerModel(request);
 			
-			ChangesStatus status = accountController.saveAccount(account, mapAccountCustomer);
-			message_queue.add(new Message(status.getMessage(),((status.getStatus()) ? "success" : "error")));
-			redirectAttributes.addFlashAttribute("message_queue", message_queue);
+			if( !(account.getAccount_id() >0) && (mapAccountCustomer.size() <1)){
+				message_queue.add(new Message("Please add at least 1 customer.","error"));
+				redirectAttributes.addFlashAttribute("message_queue", message_queue);
+				
+				return "redirect:/admin/account/new";
+			} else{
+				ChangesStatus status = accountController.saveAccount(account, mapAccountCustomer);
+				message_queue.add(new Message(status.getMessage(),((status.getStatus()) ? "success" : "error")));
+				redirectAttributes.addFlashAttribute("message_queue", message_queue);
+				
+				return "redirect:/admin/dashboard";
+			}
 			
-			return "redirect:/admin/dashboard";
+			
 		}
 		
 		if(to_do.equals("search_customer")){
@@ -261,234 +306,6 @@ public class AdminController{
 		
 		
 		return "";
-	}
-	
-	/*@RequestMapping("/admin/customer/list")
-	public String customer_list(HttpServletRequest request, HttpServletResponse response,
-			Model model, final RedirectAttributes redirectAttributes){
-		
-		PageEnvironment page = new PageEnvironment();
-		MessageQueue message_queue = new MessageQueue();
-		
-		
-		return adminTemplate();
-	}
-	
-	@RequestMapping("/admin/customer/new")
-	public String customer_new(HttpServletRequest request, HttpServletResponse response,
-			Model model, final RedirectAttributes redirectAttributes){
-		
-		PageEnvironment page = new PageEnvironment();
-		MessageQueue message_queue = new MessageQueue();
-		page.setView_file("admin/customer_edit");
-		
-		
-		model.addAttribute("message_queue", message_queue);
-		model.addAttribute("page", page);
-		return adminTemplate();
-	}
-	
-	@RequestMapping("/admin/customer/edit/{id}")
-	public String customer_edit(HttpServletRequest request, HttpServletResponse response,
-			Model model, final RedirectAttributes redirectAttributes){
-		
-		
-		return adminTemplate();
-	}
-	
-	@RequestMapping("/admin/customer/suspend/{id}")
-	public String customer_deactivate(HttpServletRequest request, HttpServletResponse response,
-			Model model, final RedirectAttributes redirectAttributes){
-		
-		return adminTemplate();
-	}
-	
-	@RequestMapping("/admin/account/search")
-	public String account_search(HttpServletRequest request, HttpServletResponse response,
-			Model model, final RedirectAttributes redirectAttributes){
-		
-		
-		return adminTemplate();
-	}
-	
-	@RequestMapping("/admin/account/edit/{id}")
-	public String account_edit(HttpServletRequest request, HttpServletResponse response,
-			Model model, final RedirectAttributes redirectAttributes){
-		
-		
-		return adminTemplate();
-	}
-	
-	@RequestMapping("/admin/account/suspend/{id}")
-	public String account_delete(HttpServletRequest request, HttpServletResponse response,
-			Model model, final RedirectAttributes redirectAttributes){
-		
-		return adminTemplate();
-	}
-	
-	private String adminTemplate(){
-		return "admin_template";
-	}
-	
-	
-	*/
-	
-	
-	
-	
-	
-	
-	//@RequestMapping("/admin/customer_lisaaat")
-	public String admin1(Model model) {
-		
-		CustomerController customerController = new CustomerController();
-		
-		/*
-		//admin/dashboard
-		
-		//admin/customer/list
-		CustomerController cController = new CustomerController();
-		Object cList = cController.getAllCustomer();
-		
-		//admin/customer/new
-		Customer cNew = new Customer();
-		
-		//admin/customer/edit/123
-		Customer cEdit = cController.getCustomerWithAccountByCustomerID(123);
-		
-		//admin/customer/save/
-		//admin/customer/update/123
-		ChangesStatus st1 = cController.saveCustomer(new Customer()); //***********
-		
-		//admin/customer/delete/123
-		ChangesStatus st2 = cController.deleteCustomer(123);
-		
-		//admin/account/list
-		AccountController aController = new AccountController();
-		aController.getAllAccounts();
-		
-		//admin/account/new
-		Account aNew = new Account();
-		
-		//admin/account/edit/123
-		Account aEdit = aController.getAccountWithOwnerByAccountID(123);
-		
-		//admin/customer/save/
-		//admin/customer/update/123
-		ChangesStatus st3 = aController.updateAccount(new Account()); //***********
-		
-		//admin/customer/delete/123
-		ChangesStatus st4 = aController.deleteAccount(123);
-		
-		//admin/transaction/list
-		TransactionController tController = new TransactionController();
-		tController.getAllTransaction();
-		
-		//admin/bank_branch/list
-		BankBranchController bController = new BankBranchController();
-		
-		//admin/bank_branch/edit/123
-		
-		
-		//admin/customer/save/
-		//admin/customer/update/123
-		
-		
-		//admin/customer/delete/123
-		
-		
-		///
-		///choose_account
-		///dashboard
-		
-		///account/withdraw/123
-		cController.getCustomerOnlyByCustomerID(123);
-		aController.getAccountOnlyByAccountID(123);
-		
-		///transaction/withdraw/
-		tController.withdraw();
-		
-		///account/deposit
-		aController.getAccountOnlyByAccountID(123);
-		
-		///transaction/deposit/
-		tController.deposti();
-		aController.getAccountOnlyByAccountID(123);
-		
-		///transaction/transfer/
-		tController.transfer();
-		
-		*/
-		
-		
-		///account/transfer
-		
-		///transaction/list
-		
-		return "admin_template";
-	}
-
-	
-	
-	//@RequestMapping(value = "/admin", method = RequestMethod.GET)
-	public String admin_customer_list(Model model,WebRequest w) {
-			
-		/*HttpServletRequest curRequest = 
-				((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
-				.getRequest();
-		HttpSession session = request.getSession();*/
-		
-		PageEnvironment _page = new PageEnvironment();
-		//_page.setTitle("Customer List");
-		_page.setViewFile("admin/customer_list.jsp");
-		
-		Message message = new Message("info","adf");
-		
-		model.addAttribute("_page", _page);
-		model.addAttribute("message", message);
-		return "admin_template";
-	}
-	
-	
-	
-	//@RequestMapping(value = "/admin/customer/new", method = RequestMethod.GET)
-	/*public String admin_customer_new(Model model) {
-		
-		PageEnvironment page = new PageEnvironment();
-		//page.setTitle("Create New Customer");
-		page.setViewFile("admin/customer/edit.jsp");
-		
-		//Message message = new Message();
-		
-		model.addAttribute("page", page);
-		//model.addAttribute("message", message);
-		return "admin_template";
-	}
-	*/
-	//@RequestMapping(value = "/admin/customer/edit/*", method = RequestMethod.GET)
-	public String admin_customer_edit(Model model) {
-		
-		PageEnvironment page = new PageEnvironment();
-		//page.setTitle("Create New Customer");
-		page.setViewFile("admin/customer/edit.jsp");
-		
-		//Message message = new Message();
-		
-		model.addAttribute("page", page);
-		//model.addAttribute("message", message);
-		return "admin_template";
-	}
-	
-	//@RequestMapping(value = "/admin/customer/save/*", method = RequestMethod.GET)
-	public String admin_customer_save(Model model) {
-		
-		return null;
-	}
-	
-	//@RequestMapping(value = "/admin/customer/delete/*", method = RequestMethod.GET)
-	public String admin_customer_delete(Model model) {
-		
-		return null;
 	}
  
 }

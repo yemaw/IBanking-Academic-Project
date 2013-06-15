@@ -1,5 +1,5 @@
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <table class="table table-hover">
 	<thead>
 		<tr>
@@ -13,7 +13,7 @@
 		<c:forEach items="${customer.accounts}" var="_account">
 			<tr>
 				<td>${_account.account_id}</td>
-				<td>${_account.amount}</td>
+				<td><fmt:formatNumber value="${_account.amount}" type="currency"/></td>
 				<td><c:choose>
 						<c:when test="${_account.account_type == 1 }">Checking Account </c:when>
 						<c:when test="${_account.account_type == 2 }">Saving Account </c:when>

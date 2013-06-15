@@ -1,5 +1,7 @@
 package helpers;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -15,6 +17,9 @@ import models.BankBranch;
 import models.Customer;
 import models.MapAccountCustomer;
 import configs.SysConfigs;
+import dao.CustomerDAO;
+import dao.DAOFactory;
+import exceptions.NotFoundException;
 
 public class HttpHelper {
 
@@ -60,10 +65,28 @@ public class HttpHelper {
 			HttpServletRequest request) {
 
 		Customer customer = new Customer();
-
+		
 		if (request.getParameter("customer_id") != "") {
 			customer.setCustomer_id(Integer.parseInt(request
 					.getParameter("customer_id")));
+			
+			CustomerDAO customerDAO = DAOFactory.getCustomerDAO();
+			Connection connection = DBConnectionHelper.getConnection();
+			
+			try {
+				Customer oldCustomerData = customerDAO.getObject(connection, Integer.parseInt(request.getParameter("customer_id")));
+				customer.setDate_of_join(oldCustomerData.getDate_of_join());
+			} catch (NumberFormatException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			 
 		}
 
 		customer.setNric(request.getParameter("nric"));
@@ -115,15 +138,18 @@ public class HttpHelper {
 			HttpServletRequest request) {
 
 		ArrayList<MapAccountCustomer> mapAccountCustomerList = new ArrayList<MapAccountCustomer>();
-		String[] customer_ids = request.getParameterValues("customer_ids");
-
-		for (int i = 0; i < customer_ids.length; i++) {
-			if (!(customer_ids[i].equals(""))) {
-				MapAccountCustomer mapAccountCustomer = new MapAccountCustomer();
-				mapAccountCustomer.setCustomer_id(Integer
-						.parseInt(customer_ids[i]));
-				mapAccountCustomerList.add(mapAccountCustomer);
-			}
+		if(request.getParameterValues("customer_ids") != null){
+			String[] customer_ids = request.getParameterValues("customer_ids");
+			
+			for (int i = 0; i < customer_ids.length; i++) {
+				if (!(customer_ids[i].equals(""))) {
+					MapAccountCustomer mapAccountCustomer = new MapAccountCustomer();
+					mapAccountCustomer.setCustomer_id(Integer
+							.parseInt(customer_ids[i]));
+					mapAccountCustomerList.add(mapAccountCustomer);
+				}
+		}
+		
 			/*
 			 * if(request.getParameter("account_id") != null){//TODO:move to out
 			 * of loop

@@ -1,7 +1,8 @@
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <c:choose>
-	<c:when test="${data.customer_id > 0 }">
+	<c:when test="${data.customer_id > 0}">
 		<h3>
 			Edit Customer<a
 				href="${page.url_host}${page.url_apppath}admin/customer/details/${data.customer_id}"
@@ -334,14 +335,15 @@
 
 			</select>
 		</tr>
+		
 		<tr>
 			<td>Date of Birth</td>
-			<td><input name="date_of_birth" value="${data.date_of_birth}"
+			<td><input name="date_of_birth" value=""
 				id="date_of_birth" type="text" required="required" placeholder="" /></td>
 		</tr>
 		<tr>
 			<td>Date of Join</td>
-			<td>${data.date_of_join}</td>
+			<td><fmt:formatDate value="${data.date_of_join}" pattern="MM/d/yyyy" /></td>
 		</tr>
 		<tr>
 			<td><a class="btn btn-primary btn-large"

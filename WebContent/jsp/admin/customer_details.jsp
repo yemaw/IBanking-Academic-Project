@@ -1,4 +1,5 @@
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <h3>
 	Detail Information of ${data.givenname} &nbsp;&nbsp;&nbsp;<a
@@ -38,11 +39,13 @@
 	</tr>
 	<tr>
 		<td>Date of Birth</td>
-		<td>${data.date_of_birth}</td>
+		<td>
+		<fmt:formatDate value="${data.date_of_birth}" pattern="MM/d/yyyy" />
+		</td>
 	</tr>
 	<tr>
 		<td>Date of Join</td>
-		<td>${data.date_of_join}</td>
+		<td><fmt:formatDate value="${data.date_of_join}" pattern="MM/d/yyyy" /></td>
 	</tr>
 </table>
 <c:if test="${not empty data.accounts}">
@@ -61,7 +64,7 @@
 			<c:forEach items="${data.accounts}" var="_account">
 				<tr>
 					<td>${_account.account_id}</td>
-					<td>${_account.amount}</td>
+					<td><fmt:formatNumber value="${_account.amount}" type="currency"/></td>
 					<td><c:choose>
 							<c:when test="${_account.account_type == 1 }">Checking Account </c:when>
 							<c:when test="${_account.account_type == 2 }">Saving Account </c:when>

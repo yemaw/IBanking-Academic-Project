@@ -1,6 +1,5 @@
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-
-<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <table class="table .table-condensed">
 	<thead>
@@ -12,7 +11,7 @@
 	</tr>
 	<tr>
 		<td>Balance</td>
-		<td>${account.amount}</td>
+		<td><fmt:formatNumber value="${account.amount}" type="currency"/></td>
 	</tr>
 	<tr>
 		<td>Account Type</td>

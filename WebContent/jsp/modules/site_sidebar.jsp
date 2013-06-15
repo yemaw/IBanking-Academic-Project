@@ -1,10 +1,12 @@
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<fmt:setBundle basename="en"></fmt:setBundle>
 <aside id="sidebar" class="span4">
 	<div class="btn-group">
 		<a class="btn dropdown-toggle btn-large btn-inverse"
 			data-toggle="dropdown" href="#"> <c:choose>
-				<c:when test="${account_id != null}"> Switch Account </c:when>
-				<c:otherwise> Choose Account </c:otherwise>
+				<c:when test="${account_id != null}"> <fmt:message key="switch_account"></fmt:message></c:when>
+				<c:otherwise><fmt:message key="choose_account"></fmt:message></c:otherwise>
 			</c:choose> <span class="caret"></span>
 		</a>
 		<ul class="dropdown-menu">
@@ -31,7 +33,7 @@
 				</tr>
 				<tr>
 					<td>Amount</td>
-					<td>: ${account.amount}</td>
+					<td>: <fmt:formatNumber value="${account.amount}" type="currency"/></td>
 				</tr>
 				<tr>
 					<td>Type</td>

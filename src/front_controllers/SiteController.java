@@ -17,6 +17,7 @@ import javax.servlet.http.HttpSession;
 import models.Account;
 import models.Customer;
 
+import org.json.simple.JSONValue;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -306,10 +307,16 @@ public class SiteController {
 				AccountController accountController = new AccountController();
 				Account account = new Account();
 				int account_id = Integer.parseInt(session.getAttribute("account_id").toString());
-				account = accountController.getAccountDetails(account_id);
-				model.addAttribute("account", account);
-				page.setPage_title("Bank Accout Information");
-				page.setView_file("site/show_balance");
+				try {
+					account = accountController.getAccountDetails(account_id);
+					model.addAttribute("account", account);
+					page.setPage_title("Bank Accout Information");
+					page.setView_file("site/show_balance");
+				} catch (NotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
 				
 			} else if ( uris.get("uri_1").toString().equals("bank_account") && uris.get("uri_2").toString().equals("deposit_fund") ){
 				page.setPage_title("Deposit");
@@ -354,6 +361,34 @@ public class SiteController {
 		//redirectAttributes.addFlashAttribute("message_queue", message_queue);
 		model.addAttribute("page", page);
 		return "site_template";
+	}
+	
+	@RequestMapping(value = {"/ajax/{to_get}/{id}"}, method = {RequestMethod.GET, RequestMethod.POST})
+	public String ajax(Model model, HttpServletRequest request, HttpServletResponse response, @PathVariable String to_get, @PathVariable String id){
+		
+		if(to_get.equals("get_owners_by_account_id")){
+			int account_id = Integer.parseInt(id);
+			AccountController accountController = new AccountController();
+			Account account;
+			try {
+				account = accountController.getAccountDetails(account_id);
+				ArrayList<Customer> customers = account.getCustomers();
+				
+				String str = "<div style='font:10px;'><u>Owner(s)</u><br />";
+				for(Customer c : customers){
+					str += c.getGivenname()+"<br />";
+				}
+				str += "</div>";
+				request.setAttribute("out_string", str);
+			} catch (NotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
+		}
+		
+		return "ajax";
 	}
 	
 }
