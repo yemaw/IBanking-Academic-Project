@@ -1,4 +1,4 @@
-OnlineBankingAcademicResearchProject
-====================================
+Online iBanking Academic Research Project
+=========================================
 
-NUS, ISS, SA36, Term-2, JAVA CA Academic Research Project.
+JAVA CA Research Project at National University of Singapore ~ Institute of Systems Science, SA36 Term 2.
